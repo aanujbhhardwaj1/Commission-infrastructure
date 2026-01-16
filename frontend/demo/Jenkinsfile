@@ -23,7 +23,8 @@ pipeline {
                         $class: 'GitSCM',
                         branches: [[name: '*/main']],
                         userRemoteConfigs: [[
-                            url: 'https://github.com/aanujbhhardwaj1/Commissions-Web.git'
+                            url: 'https://github.com/aanujbhhardwaj1/Commissions-Web.git',
+                            credentialsId: 'github-pat-credentials-id'
                         ]]
                     ])
                 }
@@ -56,3 +57,4 @@ pipeline {
         }
     }
 }
+
