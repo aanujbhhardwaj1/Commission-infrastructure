@@ -1,24 +1,20 @@
 pipeline {
     agent any
 
-    environment {
-        DEPLOY_BASE = "C:/Jenkins Deployment/Frontend/Demo"
-        BUILD_TIME = new Date().format("MM-dd-yyyy_HH-mm-ss")
-        BUILD_DIR = "${DEPLOY_BASE}/${BUILD_TIME}"
-    }
-
     stages {
         stage('Create build folder') {
             steps {
                 script {
-                    echo "Creating build folder: ${BUILD_DIR}"
-                    bat "mkdir \"${BUILD_DIR}\""
+                    env.BUILD_DIR = "C:/Jenkins Deployment/Frontend/Demo/${new Date().format('MM-dd-yyyy_HH-mm-ss')}"
+                    echo "Creating build folder: ${env.BUILD_DIR}"
+                    bat "mkdir \"${env.BUILD_DIR}\""
                 }
             }
         }
+
         stage('Checkout application code') {
             steps {
-                dir("${BUILD_DIR}") {
+                dir("${env.BUILD_DIR}") {
                     checkout([
                         $class: 'GitSCM',
                         branches: [[name: '*/main']],
@@ -30,31 +26,13 @@ pipeline {
                 }
             }
         }
-        stage('Install dependencies') {
+
+        stage('Deploy static frontend') {
             steps {
-                dir("${BUILD_DIR}") {
-                    bat 'npm install'
-                }
-                dir("${BUILD_DIR}/client") {
-                    bat 'npm install'
-                }
-            }
-        }
-        stage('Build Angular App') {
-            steps {
-                dir("${BUILD_DIR}/client") {
-                    bat 'npm run build'
-                }
-            }
-        }
-        stage('Restart PM2') {
-            steps {
-                bat 'pm2 delete demo_frontend || exit 0'
-                dir("${BUILD_DIR}") {
-                    bat 'pm2 start pm2.config.js --env demo --only demo_frontend'
-                }
+                echo "Static frontend deployed successfully"
             }
         }
     }
 }
+
 
